@@ -1,0 +1,10 @@
+# Shell scripts and Python must keep LF endings or they break on the VPS.
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+Dockerfile text eol=lf
+Makefile text eol=lf
+Caddyfile text eol=lf
+*.wasm binary
+*.db binary
+*.gz binary
