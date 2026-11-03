@@ -1,0 +1,21 @@
+# secrets
+.env
+
+# generated artifacts, rebuilt by build/build_app.py
+data/*.db
+app/index.html
+app/index.html.gz
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# os / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+.smoke-tmp/

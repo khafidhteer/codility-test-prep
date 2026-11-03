@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e2740">
+<title>Codility | Senior Data Scientist (Analytics)</title>
+<style>
+  :root{
+    --bar:#0e2740; --ink:#16222e; --muted:#5f7080; --line:#dbe4ec;
+    --blue:#1a6fb5; --coral:#e2543f; --green:#1f8a54; --amber:#b5761a;
+    --bg:#f4f7fa; --card:#fff; --learn:#fbf8f2; --code:#f6f9fc;
+    --tap:44px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{font:14px/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  button,input,textarea{font-family:inherit}
+
+  header{position:sticky;top:0;z-index:30;background:var(--bar);color:#fff;display:flex;align-items:center;
+         gap:12px;padding:0 14px;height:56px}
+  .brand{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;white-space:nowrap}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--coral)}
+  .brand small{font-weight:400;opacity:.6}
+  .modes{display:flex;background:rgba(255,255,255,.12);border-radius:6px;padding:2px;flex-shrink:0}
+  .modes button{background:transparent;border:0;color:#cfdcea;font-size:12px;font-weight:600;padding:5px 10px;
+                border-radius:4px;cursor:pointer;min-height:32px}
+  .modes button.on{background:#fff;color:var(--bar)}
+  .pills{display:flex;gap:5px;flex:1;overflow-x:auto;scrollbar-width:none;padding:4px 0}
+  .pills::-webkit-scrollbar{display:none}
+  .pill{min-width:30px;height:28px;border-radius:5px;border:1px solid rgba(255,255,255,.25);background:transparent;
+        color:#dfe8f1;font-size:12px;font-weight:600;cursor:pointer;padding:0 6px}
+  .pill.cur{background:#fff;color:var(--bar);border-color:#fff}
+  .pill.done{border-color:#39a56c;color:#a7ebc6}
+  .pill.wrong{border-color:var(--coral);color:#ffb8a9}
+  .timer{font-variant-numeric:tabular-nums;font-weight:600;font-size:15px;background:rgba(255,255,255,.1);
+         padding:5px 10px;border-radius:5px;white-space:nowrap}
+  .timer.low{background:rgba(226,84,63,.3)}
+  .btn{border:0;border-radius:6px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;min-height:var(--tap)}
+  .btn.primary{background:var(--coral);color:#fff}
+  .btn.ghost{background:#fff;color:var(--bar);border:1px solid var(--line)}
+  .btn.small{padding:6px 10px;font-size:12px;min-height:34px}
+  .btn:disabled{opacity:.55}
+
+  main{display:grid;grid-template-columns:minmax(0,1fr) 420px;height:calc(100vh - 56px)}
+  .test{overflow-y:auto;padding:20px 24px 70px;-webkit-overflow-scrolling:touch}
+  .learn{border-left:1px solid var(--line);background:var(--learn);overflow-y:auto;display:flex;flex-direction:column}
+  .taskhead h1{font-size:19px;margin:0 0 3px;line-height:1.3}
+  .tags{color:var(--muted);font-size:11.5px;letter-spacing:.3px;text-transform:uppercase;font-weight:700}
+  .prompt{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:13px 0 11px;
+          white-space:pre-wrap;font-size:14.5px}
+  .contract{margin:0 0 12px;padding:9px 13px;border-left:3px solid var(--blue);background:#eef5fb;
+            font-size:12.5px;color:#33505f;border-radius:0 6px 6px 0}
+  h3.sec{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:16px 0 7px}
+  .schema{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:7px}
+  .tbl{background:#fff;border:1px solid var(--line);border-radius:7px;padding:8px 10px;font-size:12px}
+  .tbl b{color:var(--blue);cursor:pointer;font-family:ui-monospace,Consolas,monospace}
+  .tbl code{color:#42586b;font-family:ui-monospace,Consolas,monospace;font-size:11px;word-break:break-word}
+  .opt{display:block;background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px 13px;margin-bottom:8px;
+       cursor:pointer;font-size:14px;line-height:1.45}
+  .opt input{margin-right:9px;transform:translateY(1px)}
+  .opt.sel{border-color:var(--blue);background:#f2f8fd}
+  .opt.ok{border-color:var(--green);background:#eff9f3}
+  .opt.no{border-color:var(--coral);background:#fdf1ef}
+  .editorwrap{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--code)}
+  textarea{width:100%;min-height:250px;border:0;outline:0;resize:vertical;padding:12px 13px;
+           font:13px/1.55 ui-monospace,Consolas,"Courier New",monospace;color:#12222f;background:var(--code);
+           tab-size:2;white-space:pre;overflow-wrap:normal;overflow-x:auto}
+  .actions{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap;align-items:center}
+  .status{font-size:12.5px;color:var(--muted);margin-left:auto}
+  .msg{border-radius:7px;padding:10px 12px;font-size:13.5px;margin-bottom:9px;white-space:pre-wrap}
+  .msg.ok{background:#eaf7f0;border:1px solid #b7e2c9;color:#12623d}
+  .msg.no{background:#fdefec;border:1px solid #f5c2b7;color:#8b2c1a}
+  .msg.info{background:#eef4fa;border:1px solid #c9dced;color:#24506f}
+  table.res{border-collapse:collapse;font-size:12px;background:#fff;width:100%;margin-top:6px;display:block;overflow-x:auto}
+  table.res th{background:#eef2f6;text-align:left;padding:6px 9px;border:1px solid var(--line);font-weight:600;white-space:nowrap}
+  table.res td{padding:5px 9px;border:1px solid #e8eef3;font-variant-numeric:tabular-nums;white-space:nowrap}
+  pre.out{background:#f6f9fc;border:1px solid var(--line);border-radius:7px;padding:11px;overflow-x:auto;
+          font:12px/1.5 ui-monospace,Consolas,monospace;margin:0 0 10px}
+
+  .ltabs{display:flex;border-bottom:1px solid #e6dccb;background:#f7f1e6;position:sticky;top:0;z-index:3;overflow-x:auto;scrollbar-width:none}
+  .ltabs::-webkit-scrollbar{display:none}
+  .ltab{padding:11px 11px;font-size:12px;font-weight:700;color:#7a6a52;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+  .ltab.on{color:#4a3a22;border-bottom-color:var(--coral);background:#fffdf9}
+  .lbody{padding:15px 17px 50px}
+  .lbody h4{margin:0 0 7px;font-size:13px;color:#4a3a22}
+  .lbody p{margin:0 0 10px;font-size:13.2px;color:#3d3a33;line-height:1.6}
+  .lbody ul{margin:0 0 11px;padding-left:17px}
+  .lbody li{font-size:13px;margin-bottom:8px;color:#3d3a33;line-height:1.55}
+  table.ref{border-collapse:collapse;width:100%;font-size:12.3px;background:#fff;border:1px solid #eadfcc}
+  table.ref td{padding:7px 9px;border-bottom:1px solid #f0e8da;vertical-align:top}
+  table.ref td:first-child{font-weight:700;color:#5a4728;width:38%}
+  .hintrow{border-left:3px solid var(--amber);background:#fffaf0;padding:10px 12px;margin-bottom:8px;font-size:13px;border-radius:0 6px 6px 0}
+  .warn{font-size:12.5px;color:#8a6a2a;background:#fdf6e6;border:1px solid #f0dcb0;border-radius:7px;padding:9px 11px;margin:12px 0}
+
+  .bank{display:block}
+  .bankbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .bankbar input{flex:1;min-width:170px;min-height:var(--tap);border:1px solid var(--line);border-radius:7px;padding:9px 12px;font-size:14px}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;min-height:36px}
+  .chip.on{background:var(--bar);color:#fff;border-color:var(--bar)}
+  .card{background:#fff;border:1px solid var(--line);border-radius:9px;padding:12px 14px;margin-bottom:8px;cursor:pointer}
+  .card:hover{border-color:#b9cddd}
+  .card .k{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
+           padding:2px 7px;border-radius:9px;margin-right:8px;vertical-align:1px}
+  .k.mcq{background:#eaf1fa;color:#1a558c}.k.sql{background:#e9f6ee;color:#136c43}.k.python{background:#fdf1e6;color:#95551a}
+  .card .t{font-size:13.8px;font-weight:600}
+  .card .s{color:var(--muted);font-size:12px;margin-top:3px}
+
+  .overlay{position:fixed;inset:0;background:rgba(10,24,38,.75);display:none;align-items:flex-start;justify-content:center;
+           padding:24px 12px;z-index:60;overflow-y:auto}
+  .overlay.on{display:flex}
+  .modal{background:#fff;border-radius:12px;max-width:820px;width:100%;padding:22px 22px 26px}
+  .modal h2{margin:0 0 4px;font-size:21px}
+  .modal .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+  .score{font-size:36px;font-weight:800;color:var(--bar);margin:0}
+  .score small{font-size:14px;font-weight:500;color:var(--muted)}
+  table.sum{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:12px}
+  table.sum th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);
+               border-bottom:1px solid var(--line);padding:7px 6px}
+  table.sum td{padding:7px 6px;border-bottom:1px solid #eef2f6}
+  .tag{font-size:11px;font-weight:800;padding:2px 7px;border-radius:10px;white-space:nowrap}
+  .tag.ok{background:#e7f6ee;color:#12623d}.tag.no{background:#fdeceb;color:#8b2c1a}.tag.na{background:#eef2f6;color:#5f7080}
+  .footerbar{display:flex;gap:9px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+  .muted{color:var(--muted)}
+  .jump{display:none}
+
+  /* ---------- mobile ---------- */
+  @media (max-width:1080px){
+    main{grid-template-columns:1fr;height:auto}
+    .test{padding:16px 14px 24px}
+    .learn{border-left:0;border-top:2px solid #e6dccb;overflow:visible}
+    .ltabs{position:sticky;top:112px}
+    header{height:auto;min-height:52px;gap:8px;padding:8px 10px;flex-wrap:wrap}
+    .brand{order:1;flex:1 1 auto;min-width:0}
+    .brand small{display:none}
+    .modes{order:2}
+    .modes button{padding:6px 9px}
+    .timer{order:3}
+    #finishBtn{order:4}
+    .pills{order:5;flex:1 1 100%;margin:0 -2px}
+    .pill{min-width:28px;height:26px;font-size:11.5px}
+    /* reset lives in the finish dialog on small screens */
+    #resetBtn{display:none}
+    .jump{display:flex;position:sticky;bottom:0;z-index:25;background:rgba(14,39,64,.96);
+          padding:8px;gap:8px;justify-content:center;backdrop-filter:blur(6px)}
+    .jump a{color:#fff;font-size:12.5px;font-weight:700;text-decoration:none;padding:9px 14px;border-radius:7px;
+            background:rgba(255,255,255,.12);min-height:38px;display:flex;align-items:center}
+    body{padding-bottom:0}
+    textarea{min-height:210px;font-size:14px}
+    .prompt{font-size:14.5px}
+    .overlay{padding:12px 8px}
+    .modal{padding:18px 16px 22px;border-radius:10px}
+    .score{font-size:30px}
+    table.sum th:nth-child(3),table.sum td:nth-child(3){display:none}
+  }
+  @media (max-width:520px){
+    .tags{font-size:10.5px}
+    .taskhead h1{font-size:17px}
+    .actions .btn{flex:1 1 auto}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot"></span>Codility <small>Senior Data Scientist (Analytics)</small></div>
+  <div class="modes">
+    <button id="modeExam" class="on">Exam</button>
+    <button id="modeStudy">Study</button>
+  </div>
+  <div class="pills" id="pills"></div>
+  <div class="timer" id="timer">--:--</div>
+  <button class="btn ghost small" id="resetBtn">Reset</button>
+  <button class="btn primary small" id="finishBtn">Finish</button>
+</header>
+
+<main id="main">
+  <section class="test" id="test"></section>
+  <aside class="learn" id="learn">
+    <div class="ltabs" id="ltabs"></div>
+    <div class="lbody" id="lbody"></div>
+  </aside>
+</main>
+
+<div class="jump" id="jump">
+  <a href="#taskTop">Question</a>
+  <a href="#learnTop">Material</a>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+
+<script>
+const TASKS = {{TASKS_JSON}};
+const LIB = {{LIBRARY_JSON}};
+const EXAM = {{EXAM_JSON}};
+const MINUTES = {{MINUTES}};
+const DB_B64 = "{{DB_B64}}";
+const WASM_B64 = "{{WASM_B64}}";
+
+const KEY = "grab_lab_v2";
+const byId = Object.fromEntries(TASKS.map(t => [t.id, t]));
+const POOLS = {mcq: [], sql: [], py: []};
+TASKS.forEach(t => POOLS[t.pool].push(t.id));
+
+let S = load();
+let cur = 0, learnTab = "Concept", studyId = null, filter = "", filterKind = "all";
+let sqlDb = null, pyodide = null;
+
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){
+      const st = JSON.parse(raw);
+      if(!st.paper) throw 0;
+      st.ans = st.ans || {}; st.checked = st.checked || {}; st.revealed = st.revealed || {};
+      st.hints = st.hints || {}; st.elapsed = st.elapsed || 0; st.idx = st.idx || 0;
+      st.mode = st.mode || "exam"; st.savedAt = st.savedAt || Date.now();
+      return st;
+    }
+  }catch(e){}
+  return newState();
+}
+function newState(){
+  return {mode:"exam", paper:sample(), ans:{}, checked:{}, revealed:{}, hints:{},
+          idx:0, elapsed:0, savedAt:Date.now(), ended:false, started:false};
+}
+function shuffle(a){
+  const r = a.slice();
+  for(let i=r.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [r[i],r[j]]=[r[j],r[i]]; }
+  return r;
+}
+function sample(){
+  return {mcq: shuffle(POOLS.mcq).slice(0, EXAM.mcq),
+          sql: shuffle(POOLS.sql).slice(0, EXAM.sql),
+          py: shuffle(POOLS.py).slice(0, EXAM.py)};
+}
+function paperIds(){
+  const p = S.paper;
+  return [...p.mcq, ...p.sql, ...p.py];
+}
+const DURATION = MINUTES * 60;
+const task = id => byId[id];
+function currentTask(){
+  if(S.mode === "study" && studyId) return task(studyId);
+  return task(paperIds()[cur]);
+}
+function save(){
+  S.savedAt = Date.now();
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
+}
+function elapsed(){ return S.ended ? (S.elapsed||0) : Math.min(DURATION, (S.elapsed||0) + (Date.now() - (S.savedAt||Date.now()))/1000); }
+function remaining(){ return Math.max(0, DURATION - elapsed()); }
+function fmt(s){ const m=Math.floor(s/60), x=Math.floor(s%60); return (m<10?"0":"")+m+":"+(x<10?"0":"")+x; }
+function esc(s){ return String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+/* ---------------------------------------------------------------- header */
+function renderHeader(){
+  document.getElementById("modeExam").classList.toggle("on", S.mode === "exam");
+  document.getElementById("modeStudy").classList.toggle("on", S.mode === "study");
+  document.getElementById("timer").style.display = S.mode === "exam" ? "" : "none";
+  document.getElementById("finishBtn").style.display = S.mode === "exam" ? "" : "none";
+  const pills = document.getElementById("pills");
+  if(S.mode === "exam"){
+    pills.innerHTML = paperIds().map((id,i) => {
+      const st = S.checked[id];
+      const cls = "pill" + (i===cur?" cur":"") + (st===true?" done":"") + (st===false?" wrong":"");
+      return `<button class="${cls}" data-i="${i}">${i+1}</button>`;
+    }).join("");
+    pills.querySelectorAll(".pill").forEach(p => p.onclick = () => {
+      cur = +p.dataset.i; S.idx = cur; save(); renderAll();
+    });
+  }else{
+    pills.innerHTML = `<span style="color:#9fb3c6;font-size:12px;padding:4px 2px">${TASKS.length} items in the bank</span>`;
+  }
+}
+
+/* ---------------------------------------------------------------- test pane */
+function renderTest(){
+  const host = document.getElementById("test");
+  if(S.mode === "study" && !studyId){ host.innerHTML = bankHtml(); wireBank(host); return; }
+  const t = currentTask();
+  if(!t){ host.innerHTML = "<p>No task.</p>"; return; }
+
+  const heading = t.kind === "mcq" ? (t.learning && t.learning.name) || "Knowledge question" : t.title;
+  let html = `<div id="taskTop"></div><div class="taskhead"><h1>${esc(heading)}</h1>
+              <div class="tags">${esc(t.tags)}</div></div>`;
+  if(S.mode === "study") html = `<button class="btn ghost small" id="backBank" style="margin-bottom:12px">← All questions</button>` + html;
+  html += `<div class="prompt">${esc(t.prompt)}</div>`;
+  if(t.contract) html += `<div class="contract"><b>Output contract.</b> ${esc(t.contract)}</div>`;
+
+  if(t.kind === "sql"){
+    html += `<h3 class="sec">Tables (tap a name to preview rows)</h3><div class="schema">` +
+      (t.schema||[]).map(([n,c]) => `<div class="tbl"><b data-preview="${n}">${n}</b><br><code>${esc(c)}</code></div>`).join("") + `</div>`;
+  }
+  if(t.kind === "mcq"){
+    html += `<h3 class="sec">Select one</h3><div id="opts">` +
+      t.options.map((o,i) => `<label class="opt${S.ans[t.id]===i?" sel":""}" data-opt="${i}"><input type="radio" name="o" ${S.ans[t.id]===i?"checked":""}>${esc(o)}</label>`).join("") +
+      `</div><div class="actions"><button class="btn ghost" id="checkBtn">Check answer</button>
+       <span class="status" id="status"></span></div>`;
+  }else{
+    const lang = t.kind === "sql" ? "SQL (SQLite)" : "Python 3, standard library";
+    html += `<h3 class="sec">Your solution · ${lang}</h3>
+      <div class="editorwrap"><textarea id="code" spellcheck="false" autocapitalize="off" autocorrect="off">${esc(S.ans[t.id]||t.starter||"")}</textarea></div>
+      <div class="actions">
+        <button class="btn primary" id="runBtn">${t.kind==="sql"?"Run query":"Run code"}</button>
+        <button class="btn ghost" id="checkBtn">Check</button>
+        <button class="btn ghost small" id="revealBtn">Solution</button>
+        <span class="status" id="status"></span>
+      </div>`;
+  }
+  html += `<div class="out" id="out"></div>`;
+  host.innerHTML = html;
+
+  const back = document.getElementById("backBank");
+  if(back) back.onclick = () => { studyId = null; renderAll(); window.scrollTo(0,0); };
+
+  if(t.kind === "mcq"){
+    if(S.checked[t.id] !== undefined && S.ans[t.id] !== undefined){
+      host.querySelectorAll("#opts .opt").forEach(el => {
+        const i = +el.dataset.opt;
+        if(i === t.answer) el.classList.add("ok");
+        if(i === S.ans[t.id] && S.checked[t.id] === false) el.classList.add("no");
+      });
+    }
+    host.querySelectorAll("#opts .opt").forEach(el => el.onclick = () => {
+      S.ans[t.id] = +el.dataset.opt;
+      host.querySelectorAll("#opts .opt").forEach(x => x.classList.remove("sel"));
+      el.classList.add("sel"); el.querySelector("input").checked = true;
+      save();
+    });
+  }else{
+    const ta = document.getElementById("code");
+    ta.addEventListener("input", () => { S.ans[t.id] = ta.value; save(); });
+    ta.addEventListener("keydown", e => {
+      if(e.key === "Tab"){
+        e.preventDefault();
+        const s = ta.selectionStart, en = ta.selectionEnd;
+        ta.value = ta.value.slice(0,s) + "  " + ta.value.slice(en);
+        ta.selectionStart = ta.selectionEnd = s + 2;
+        S.ans[t.id] = ta.value; save();
+      }
+    });
+    host.querySelector("#runBtn").onclick = t.kind === "sql" ? runSQL : runPython;
+    host.querySelectorAll("[data-preview]").forEach(el => el.onclick = () => {
+      ta.value = "SELECT * FROM " + el.dataset.preview + " LIMIT 8;";
+      S.ans[t.id] = ta.value; save(); runSQL();
+    });
+  }
+  host.querySelector("#checkBtn").onclick = t.kind === "mcq" ? checkMCQ : (t.kind === "sql" ? checkSQL : checkPython);
+  const rv = document.getElementById("revealBtn");
+  if(rv) rv.onclick = reveal;
+  updateStatus();
+}
+
+function bankHtml(){
+  const q = filter.toLowerCase();
+  const items = TASKS.filter(t => (filterKind === "all" || t.pool === filterKind) &&
+      (!q || (t.title+" "+t.tags).toLowerCase().includes(q)));
+  return `<h1 style="font-size:19px;margin:0 0 4px">Question bank</h1>
+    <div class="tags">${TASKS.length} items · ${POOLS.mcq.length} knowledge, ${POOLS.sql.length} SQL, ${POOLS.py.length} Python</div>
+    <div class="warn">Study mode has no timer and no score. The exam draws 11 knowledge, 3 SQL and 2 Python questions from this bank, so anything you skip here is a question you might meet cold.</div>
+    <div class="bankbar">
+      <input id="qfilter" placeholder="Search titles and tags" value="${esc(filter)}">
+      <button class="chip ${filterKind==="all"?"on":""}" data-k="all">All</button>
+      <button class="chip ${filterKind==="mcq"?"on":""}" data-k="mcq">Knowledge</button>
+      <button class="chip ${filterKind==="sql"?"on":""}" data-k="sql">SQL</button>
+      <button class="chip ${filterKind==="python"?"on":""}" data-k="python">Python</button>
+    </div>
+    <div class="bank">` + items.map(t => {
+      const st = S.checked[t.id] === true ? " · solved" : S.checked[t.id] === false ? " · tried" : "";
+      return `<div class="card" data-id="${t.id}"><span class="k ${t.pool}">${t.pool}</span>
+              <span class="t">${esc(t.title)}</span><div class="s">${esc(t.tags)}${st}</div></div>`;
+    }).join("") + `</div>`;
+}
+function wireBank(host){
+  host.querySelectorAll(".card").forEach(c => c.onclick = () => {
+    studyId = c.dataset.id; learnTab = "Concept"; renderAll(); window.scrollTo(0,0);
+  });
+  host.querySelectorAll(".chip").forEach(c => c.onclick = () => {
+    filterKind = c.dataset.k; renderTest();
+  });
+  const inp = host.querySelector("#qfilter");
+  inp.oninput = () => { filter = inp.value; const p = inp.selectionStart; renderTest();
+    const n = document.querySelector("#qfilter"); n.focus(); n.setSelectionRange(p,p); };
+}
+
+function updateStatus(){
+  const s = document.getElementById("status"); if(!s) return;
+  const t = currentTask();
+  s.textContent = S.checked[t.id] === true ? "checked · correct"
+                : S.checked[t.id] === false ? "checked · not yet" : "not checked";
+}
+
+/* ---------------------------------------------------------------- material pane */
+function renderLearn(){
+  const t = currentTask();
+  document.getElementById("learn").id = "learn";
+  const tabs = ["Concept","Recipe","Gotchas","Reference","Hints","Library"];
+  if(!tabs.includes(learnTab)) learnTab = "Concept";
+  const tabsEl = document.getElementById("ltabs");
+  tabsEl.innerHTML = tabs.map(x => `<div class="ltab${x===learnTab?" on":""}" data-tab="${x}">${x}</div>`).join("");
+  tabsEl.querySelectorAll(".ltab").forEach(el => el.onclick = () => { learnTab = el.dataset.tab; renderLearn(); });
+  const b = document.getElementById("lbody");
+
+  if(!t){ b.innerHTML = `<h4>Nothing selected</h4><p>Pick a question from the bank.</p>`; return; }
+  if(learnTab === "Library"){
+    b.innerHTML = `<div id="learnTop"></div>` + Object.keys(LIB).map(g => `
+      <h4>${g}</h4><table class="ref">${LIB[g].map(([k,v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join("")}</table><div style="height:14px"></div>`).join("");
+    return;
+  }
+  if(learnTab === "Hints"){
+    const shown = S.hints[t.id] || 0;
+    let html = `<div id="learnTop"></div><h4>Hint ladder</h4><p>Reveal one at a time.</p>`;
+    for(let i=0;i<shown;i++) html += `<div class="hintrow">${esc(t.hints[i])}</div>`;
+    html += shown < t.hints.length
+      ? `<button class="btn ghost small" id="hintBtn">Reveal hint ${shown+1} of ${t.hints.length}</button>`
+      : `<p class="muted">All hints shown.</p>`;
+    b.innerHTML = html;
+    const hb = document.getElementById("hintBtn");
+    if(hb) hb.onclick = () => { S.hints[t.id] = shown+1; save(); renderLearn(); };
+    return;
+  }
+  const L = t.learning || {};
+  let body = `<div id="learnTop"></div><h4>${esc(t.title)}</h4>`;
+  if(learnTab === "Concept") body += (L.concept||[]).map(p => `<p>${esc(p)}</p>`).join("") +
+      (t.why ? `<p><b>Why this answer.</b> ${esc(t.why)}</p>` : "");
+  if(learnTab === "Recipe") body += `<ul>${(L.recipe||[]).map(r => `<li>${esc(r)}</li>`).join("")}</ul>`;
+  if(learnTab === "Gotchas") body += `<ul>${(L.gotchas||[]).map(r => `<li>${esc(r)}</li>`).join("")}</ul>`;
+  if(learnTab === "Reference") body += `<table class="ref">${(L.reference||[]).map(([k,v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join("")}</table>`;
+  b.innerHTML = body;
+}
+
+/* ---------------------------------------------------------------- MCQ */
+function checkMCQ(){
+  const t = currentTask(), pick = S.ans[t.id], out = document.getElementById("out");
+  if(pick === undefined){ out.innerHTML = `<div class="msg info">Pick an option first.</div>`; return; }
+  const ok = pick === t.answer;
+  S.checked[t.id] = ok; save();
+  document.querySelectorAll("#opts .opt").forEach(el => {
+    const i = +el.dataset.opt;
+    if(i === t.answer) el.classList.add("ok");
+    if(i === pick && !ok) el.classList.add("no");
+  });
+  out.innerHTML = `<div class="msg ${ok?"ok":"no"}"><b>${ok?"Correct.":"Not quite."}</b> Answer ${"ABCD"[t.answer]}. ${esc(t.why)}</div>`;
+  renderHeader(); updateStatus();
+}
+
+function reveal(){
+  const t = currentTask(), out = document.getElementById("out");
+  S.revealed[t.id] = true; save();
+  if(t.kind === "mcq"){
+    out.innerHTML = `<div class="msg info"><b>Answer ${"ABCD"[t.answer]}.</b> ${esc(t.why)}</div>`;
+    return;
+  }
+  out.innerHTML = `<div class="msg info">Reference solution. Marked as helped in your result.</div><pre class="out">${esc(t.reference)}</pre>`;
+}
+
+/* ---------------------------------------------------------------- SQL */
+function b64(b){ const s = atob(b), a = new Uint8Array(s.length); for(let i=0;i<s.length;i++) a[i]=s.charCodeAt(i); return a; }
+async function ensureSql(){
+  if(sqlDb) return sqlDb;
+  if(typeof initSqlJs !== "function") throw new Error("SQL engine did not load");
+  const SQL = await initSqlJs({ wasmBinary: b64(WASM_B64) });
+  sqlDb = new SQL.Database(b64(DB_B64));
+  return sqlDb;
+}
+function execSql(q){
+  const r = sqlDb.exec(q);
+  return r.length ? {cols:r[0].columns, rows:r[0].values} : {cols:[], rows:[]};
+}
+function tableHtml(cols, rows){
+  return `<table class="res"><tr>${cols.map(c => `<th>${esc(c)}</th>`).join("")}</tr>` +
+    rows.map(r => `<tr>${r.map(v => `<td>${v===null?"NULL":esc(typeof v==="number"?(+v.toFixed(4)).toString():v)}</td>`).join("")}</tr>`).join("") + `</table>`;
+}
+async function runSQL(){
+  const t = currentTask(), q = (S.ans[t.id]||"").trim(), out = document.getElementById("out");
+  if(!q){ out.innerHTML = `<div class="msg info">Write a query first.</div>`; return; }
+  out.innerHTML = `<div class="msg info">Running…</div>`;
+  try{
+    await ensureSql();
+    const {cols, rows} = execSql(q);
+    out.innerHTML = `<div class="msg ${rows.length?"ok":"info"}">${rows.length} row${rows.length===1?"":"s"}.</div>` +
+      (rows.length ? tableHtml(cols, rows.slice(0,20)) : "") +
+      (rows.length>20 ? `<div class="muted" style="font-size:12px;margin-top:5px">First 20 of ${rows.length}.</div>` : "");
+  }catch(e){ out.innerHTML = `<div class="msg no">SQL error: ${esc(e.message||e)}</div>`; }
+}
+function cellEq(a,b){ if(typeof a==="number"&&typeof b==="number") return Math.abs(a-b) <= Math.max(1e-6,1e-6*Math.abs(b)); return String(a).trim()===String(b).trim(); }
+function rowsMatch(got, exp, orderMatters){
+  if(got.rows.length !== exp.rows.length) return false;
+  const w = (got.rows[0]||[]).length, we = (exp.rows[0]||[]).length;
+  if(w !== we) return false;
+  const key = r => JSON.stringify(r.map(v => typeof v==="number" ? +v.toFixed(6) : v));
+  let g = got.rows.map(r=>r.slice()), e = exp.rows.map(r=>r.slice());
+  if(!orderMatters){ g.sort((x,y)=>key(x)<key(y)?-1:key(x)>key(y)?1:0); e.sort((x,y)=>key(x)<key(y)?-1:key(x)>key(y)?1:0); }
+  for(let i=0;i<e.length;i++) for(let j=0;j<e[i].length;j++) if(!cellEq(g[i][j], e[i][j])) return false;
+  return true;
+}
+async function checkSQL(){
+  const t = currentTask(), q = (S.ans[t.id]||"").trim(), out = document.getElementById("out");
+  if(!q){ out.innerHTML = `<div class="msg info">Write a query first.</div>`; return; }
+  try{
+    await ensureSql();
+    const got = execSql(q), ok = rowsMatch(got, t.expected, t.order_matters);
+    S.checked[t.id] = ok; save();
+    if(ok){
+      out.innerHTML = `<div class="msg ok"><b>Correct.</b> ${got.rows.length} rows, values match${t.order_matters?", order included":" (order ignored)"}.</div>`;
+    }else{
+      const exp = t.expected;
+      let why = "";
+      if(got.rows.length !== exp.rows.length) why = `Rows: you returned ${got.rows.length}, expected ${exp.rows.length}.`;
+      else if((got.rows[0]||[]).length !== (exp.rows[0]||[]).length) why = `Columns: ${(got.rows[0]||[]).length} vs ${(exp.rows[0]||[]).length} expected.`;
+      else why = "Shape matches, so the difference is in the values.";
+      out.innerHTML = `<div class="msg no"><b>Not matching.</b> ${esc(why)}</div>
+        <h3 class="sec">Yours</h3>${got.rows.length?tableHtml(got.cols,got.rows.slice(0,6)):"<div class='muted'>No rows</div>"}
+        <h3 class="sec">Expected</h3>${tableHtml(exp.cols, exp.rows.slice(0,6))}`;
+    }
+  }catch(e){ S.checked[t.id] = false; save(); out.innerHTML = `<div class="msg no">SQL error: ${esc(e.message||e)}</div>`; }
+  renderHeader(); updateStatus();
+}
+
+/* ---------------------------------------------------------------- Python */
+const CDN = "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/";
+function loadScript(src){
+  return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.onload=res;
+    s.onerror=()=>rej(new Error("Could not load "+src)); document.head.appendChild(s); });
+}
+async function ensurePy(){
+  if(pyodide) return pyodide;
+  if(!window.loadPyodide) await loadScript(CDN+"pyodide.js");
+  pyodide = await loadPyodide({indexURL:CDN});
+  return pyodide;
+}
+function deepEq(a,b,tol){
+  if(typeof a==="number"&&typeof b==="number") return Math.abs(a-b)<=Math.max(tol,tol*Math.abs(b));
+  if(Array.isArray(a)&&Array.isArray(b)) return a.length===b.length&&a.every((x,i)=>deepEq(x,b[i],tol));
+  if(a&&b&&typeof a==="object"&&typeof b==="object"){
+    const ka=Object.keys(a).sort(), kb=Object.keys(b).sort();
+    return ka.join()===kb.join()&&ka.every(k=>deepEq(a[k],b[k],tol));
+  }
+  return a===b;
+}
+async function runPy(){
+  const t = currentTask(), code = (S.ans[t.id]||"").trim(), out = document.getElementById("out");
+  if(!code){ out.innerHTML = `<div class="msg info">Write a function first.</div>`; return null; }
+  out.innerHTML = `<div class="msg info">${pyodide?"Running…":"Loading the Python runtime once (about 10 seconds)…"}</div>`;
+  try{
+    const py = await ensurePy();
+    const harness = code + "\n\n" + (t.fixture_py||"") + "\nimport json\n__out = json.dumps(" + t.call + ")\n";
+    py.runPython("__out = None"); py.runPython(harness);
+    return JSON.parse(py.globals.get("__out"));
+  }catch(e){ out.innerHTML = `<div class="msg no">Python error: ${esc(e.message||e)}</div>`; return null; }
+}
+async function runPython(){
+  const got = await runPy(); if(got===null) return;
+  document.getElementById("out").innerHTML = `<div class="msg ok">Ran. Output below, use Check to grade.</div><pre class="out">${esc(JSON.stringify(got,null,2))}</pre>`;
+}
+async function checkPython(){
+  const t = currentTask(), got = await runPy();
+  if(got===null){ S.checked[t.id]=false; save(); renderHeader(); return; }
+  const ok = deepEq(got, t.expected, 0.002);
+  S.checked[t.id] = ok; save();
+  const out = document.getElementById("out");
+  out.innerHTML = ok
+    ? `<div class="msg ok"><b>Correct.</b> Matches the expected output.</div>`
+    : `<div class="msg no"><b>Not matching.</b> Numbers compare with a small tolerance.</div>
+       <h3 class="sec">Yours</h3><pre class="out">${esc(JSON.stringify(got,null,2))}</pre>
+       <h3 class="sec">Expected</h3><pre class="out">${esc(JSON.stringify(t.expected,null,2))}</pre>`;
+  renderHeader(); updateStatus();
+}
+
+/* ---------------------------------------------------------------- timer, score, modes */
+let tick = 0;
+setInterval(() => {
+  if(S.mode !== "exam"){ return; }
+  const el = document.getElementById("timer"), r = remaining();
+  el.textContent = fmt(r); el.classList.toggle("low", r < 600);
+  if(r <= 0 && !S.ended){ finish(); }
+  if(++tick % 5 === 0 && !S.ended){ S.elapsed = elapsed(); save(); }
+}, 1000);
+
+function finish(){
+  const used = elapsed();
+  S.ended = true; S.elapsed = used; save();
+  const ids = paperIds();
+  const scored = ids.filter(id => S.checked[id]===true && !S.revealed[id]);
+  const helped = ids.filter(id => S.checked[id]===true && S.revealed[id]);
+  const wrong = ids.filter(id => S.checked[id]===false);
+  const open = ids.filter(id => S.checked[id]===undefined);
+  const pts = scored.reduce((a,id)=>a+byId[id].points,0);
+  const total = ids.reduce((a,id)=>a+byId[id].points,0);
+  const pct = Math.round(1000*pts/total)/10;
+  const rows = ids.map((id,i) => {
+    const t = byId[id], st = t.kind;
+    const cls = S.checked[id]===true ? (S.revealed[id]?"na":"ok") : S.checked[id]===false?"no":"na";
+    const label = S.checked[id]===true ? (S.revealed[id]?"correct, helped":"correct") : S.checked[id]===false?"not yet":"not attempted";
+    return `<tr><td>${i+1}</td><td>${esc(t.title)}</td><td>${st}</td><td>${t.points}</td><td><span class="tag ${cls}">${label}</span></td></tr>`;
+  }).join("");
+  document.getElementById("modal").innerHTML = `
+    <h2>Test finished</h2>
+    <div class="sub">${fmt(used)} used of ${MINUTES} minutes. Only clean solves count: anything solved after opening the reference is listed as helped.</div>
+    <p class="score">${pct}%<small> &nbsp;${pts} of ${total} points</small></p>
+    <div class="muted" style="font-size:13px">${scored.length} clean · ${helped.length} helped · ${wrong.length} attempted wrong · ${open.length} not attempted</div>
+    <table class="sum"><tr><th>#</th><th>Task</th><th>Type</th><th>Pts</th><th>Status</th></tr>${rows}</table>
+    <div class="warn">What to do with this: the wrong and unattempted rows are your study list. Open them in Study mode, read the Recipe tab, then rewrite the answer without looking. Re-running the exam samples a different paper from the same bank, so a second attempt is a real test of recall.</div>
+    <div class="footerbar"><button class="btn ghost" id="closeModal">Back</button>
+      <button class="btn primary" id="newPaper">New paper</button></div>`;
+  document.getElementById("overlay").classList.add("on");
+  document.getElementById("closeModal").onclick = () => { S.ended=false; save(); document.getElementById("overlay").classList.remove("on"); };
+  document.getElementById("newPaper").onclick = () => { localStorage.removeItem(KEY); location.reload(); };
+  renderHeader();
+}
+
+document.getElementById("finishBtn").onclick = finish;
+document.getElementById("resetBtn").onclick = () => {
+  if(confirm("Clear this attempt and restart the clock?")){ localStorage.removeItem(KEY); location.reload(); }
+};
+document.getElementById("modeExam").onclick = () => { S.mode="exam"; S.ended=false; studyId=null; save(); renderAll(); };
+document.getElementById("modeStudy").onclick = () => { if(!S.ended && S.mode==="exam"){ S.elapsed = elapsed(); } S.mode="study"; studyId=null; save(); renderAll(); };
+
+function renderAll(){ renderHeader(); renderTest(); renderLearn(); }
+renderAll();
+</script>
+<script>{{SQLJS_JS}}</script>
+</body>
+</html>
