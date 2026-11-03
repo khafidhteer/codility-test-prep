@@ -21,6 +21,7 @@ from bank_sql import SQL_TASKS         # noqa: E402
 from bank_py import PY_TASKS           # noqa: E402
 from topics import TOPICS              # noqa: E402
 from library import LIBRARY            # noqa: E402
+from ordering import balanced_options  # noqa: E402
 
 DB = os.path.join(ROOT, "data", "mock.db")
 SCHEMA = [
@@ -63,11 +64,12 @@ def build_tasks():
     tasks = []
 
     for q in MCQ_BANK:
+        options, answer = balanced_options(q)
         tasks.append(dict(
             id=q["id"], kind="mcq", pool="mcq", points=4,
             title=q["q"][:95] + ("…" if len(q["q"]) > 95 else ""),
             tags="Knowledge  ·  %s  ·  4 points" % TOPICS[q["topic"]]["name"],
-            prompt=q["q"], options=q["options"], answer=q["answer"],
+            prompt=q["q"], options=options, answer=answer,
             why=q["why"], note=q.get("note", ""), topic=q["topic"],
             learning=TOPICS[q["topic"]],
             hints=[q["why"].split(". ")[0] + "."],

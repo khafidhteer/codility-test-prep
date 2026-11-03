@@ -23,6 +23,7 @@ from bank_mcq import MCQ_BANK          # noqa: E402
 from bank_sql import SQL_TASKS         # noqa: E402
 from bank_py import PY_TASKS           # noqa: E402
 from topics import TOPICS              # noqa: E402
+from ordering import balanced_options  # noqa: E402
 
 DB = os.path.join(ROOT, "data", "mock.db")
 DRAW = {"mcq": 11, "sql": 3, "py": 2}
@@ -46,6 +47,13 @@ def check_mcq():
             problems.append("%s unknown topic %s" % (q["id"], q["topic"]))
         if not q.get("why"):
             problems.append("%s has no explanation" % q["id"])
+    # An answer key concentrated in one position is a guessing strategy, not a
+    # test. Check the distribution the candidate actually sees, after the build's
+    # deterministic shuffle, not the authored order.
+    spread = {i: sum(1 for q in MCQ_BANK if balanced_options(q)[1] == i) for i in range(4)}
+    for i, n in spread.items():
+        if n < len(MCQ_BANK) * 0.12:
+            problems.append("answer position %s used only %d times: %s" % ("ABCD"[i], n, spread))
     return problems
 
 
