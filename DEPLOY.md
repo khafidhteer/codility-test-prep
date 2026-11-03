@@ -247,6 +247,8 @@ wrong and the runtime image contains the whole build context.
 
 | Symptom | Cause | Fix |
 |---|---|---|
+| `Permission denied (publickey)` on clone | deploy key not added, or the host alias is wrong | `ssh -T git@github-codility` should greet you as `khafidhteer`; re-check the key in repo settings |
+| `Bind for 127.0.0.1:8080 failed: port is already allocated` | something else on 8080 on the host | `sudo ss -ltnp \| grep :8080`, stop it, or change the host port in `docker-compose.yml` |
 | `the docker daemon is not running` | Docker not started, or the agent shell lacks group membership | `sudo systemctl enable --now docker`, or run with `sudo`, or `newgrp docker` |
 | `docker compose version` prints "docker-compose" v1 | Compose v2 plugin missing | `sudo apt-get install -y docker-compose-plugin` |
 | `docker compose config rejected the files` | `.env` has quotes or trailing spaces | Print `.env`, remove quotes, keep `KEY=value` with no spaces |
