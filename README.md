@@ -56,69 +56,34 @@ To test the gate end to end: `make test`. To drive the UI with a real browser:
 
 ## Deploy on a VPS
 
+One command, idempotent, and it verifies itself:
+
+```bash
+git clone git@github.com:khafidhteer/codility-test-prep.git codility-lab
+cd codility-lab && cp .env.example .env     # set DOMAIN, or leave it empty
+bash scripts/deploy.sh
+```
+
+The script checks prerequisites, generates a password if `.env` has the placeholder, sets
+`SECURE_COOKIE` correctly for the mode, validates the compose files, checks that DNS points
+at the box before asking Caddy for a certificate, builds, starts, waits for health, then
+runs the real auth flow against the running deployment and prints the URL and password.
+
+Full runbook with expected output for every step, the failure playbook, and the rules a
+deploying agent must follow: **[DEPLOY.md](DEPLOY.md)**.
+
 Sizing, measured rather than guessed: the image is 187 MB (python slim base dominates), a
 running container uses about 15 MB of RAM against a 256 MB cap and 0.5 CPU, and the app
 writes nothing to disk. On a 2 vCPU / 2 GB VPS this is idle weight; 40 GB of disk is far
 more than needed.
 
-`.env` is optional at the compose level so `docker compose config` works before you create
-it, but the server refuses to start without `APP_PASSWORD` and says so on stderr.
+Three modes:
 
-### 1. Point a hostname at the box
-
-Create an A record, for example `lab.example.com` to the VPS IPv4 address. Wait for DNS to
-resolve before starting Caddy, otherwise certificate issuance fails.
-
-### 2. Get the code and configure
-
-```bash
-git clone <your-repo-url> codility-lab && cd codility-lab
-cp .env.example .env
-```
-
-Edit `.env`:
-
-```
-APP_PASSWORD=<a long random password, 20+ characters>
-DOMAIN=lab.example.com
-SECURE_COOKIE=1
-```
-
-Generate a password with `openssl rand -base64 24`.
-
-### 3. Start it
-
-```bash
-docker compose --profile tls up -d --build
-```
-
-That builds the app image (the content gate runs inside the build, so a broken reference
-query fails the deploy), starts the app on `127.0.0.1:8080`, and starts Caddy on 80/443
-with an automatic Let's Encrypt certificate.
-
-Open `https://lab.example.com`, enter the password, and use it.
-
-Without a domain, two options:
-
-```bash
-# localhost only, reachable through an SSH tunnel from your laptop
-docker compose up -d lab
-ssh -L 8080:127.0.0.1:8080 user@your-vps
-# then http://localhost:8080
-
-# or a temporary public HTTPS URL with no open ports and no DNS, good for a phone
-cloudflared tunnel --url http://127.0.0.1:8080
-```
-
-If you use the tunnel, keep `SECURE_COOKIE=0` only while testing on plain HTTP.
-
-### 4. Check it is healthy
-
-```bash
-curl -s localhost:8080/healthz        # {"ok":true}
-docker compose ps                     # both services Up, healthcheck passing
-docker compose logs -f lab
-```
+| `.env` | Mode | Access |
+|---|---|---|
+| `DOMAIN=lab.example.com` | TLS through Caddy, certificate automatic | `https://lab.example.com` from any device |
+| `DOMAIN=` empty | bound to `127.0.0.1:8080` | SSH tunnel, or `cloudflared tunnel --url http://127.0.0.1:8080` for a phone |
+| `--public` flag | bound to `0.0.0.0:8080`, plain HTTP | throwaway testing only, the password is in clear text |
 
 ---
 
@@ -167,25 +132,20 @@ would make every answer look correct.
 
 ## Handing this to a coding agent
 
-Paste the repo URL and this block:
+Give the agent the repo URL and the prompt in [DEPLOY.md section 10](DEPLOY.md). It tells
+the agent to read the runbook first, asks for a domain, defers password generation to the
+deploy script, and requires the verify line in the report.
+
+The short version, if you want it inline:
 
 ```
-Deploy this repository on my VPS (Ubuntu, 2 vCPU, 2 GB RAM, Docker installed).
-Follow README.md exactly.
-
-Steps:
-1. Clone the repo, copy .env.example to .env.
-2. Set APP_PASSWORD to a 24-character random string and print it to me at the end.
-3. Set DOMAIN if I gave you one; otherwise leave the lab service bound to 127.0.0.1
-   and tell me how to reach it through an SSH tunnel.
-4. Run: docker compose --profile tls up -d --build
-5. Verify: curl -s localhost:8080/healthz returns {"ok":true}, and
-   bash tests/smoke.sh passes.
-6. Do not commit .env, and do not expose port 8080 publicly without the proxy.
-7. Report the URL, the password, and the output of docker compose ps.
+Read DEPLOY.md in this repository and follow it exactly.
+Clone it, copy .env.example to .env, set DOMAIN if I gave you one, then run
+bash scripts/deploy.sh. Verify with the four commands in DEPLOY.md section 6.
+Report: the URL, the generated password, the docker compose ps line, and the
+VERIFIED line from scripts/verify_deploy.sh.
+Do not commit .env, do not expose port 8080 publicly, do not run docker compose down -v.
 ```
-
----
 
 ## Troubleshooting
 

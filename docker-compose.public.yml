@@ -1,0 +1,7 @@
+# Override used only by scripts/deploy.sh --public.
+# It publishes the app on all interfaces, which means the password crosses the
+# network in clear text. Prefer a DOMAIN plus the tls profile.
+services:
+  lab:
+    ports:
+      - "8080:8080"
